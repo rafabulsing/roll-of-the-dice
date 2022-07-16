@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public string moving = "";
+    public List<string> nextMoves = new List<string>();
     public float moveProgress = 0;
     public Vector3 moveStartPosition;
     public int value = 5;
@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         // Not moving
-        if (moving == "") {
+        if (nextMoves.Count == 0) {
             CheckIfPressingKey();
         } else {
             // Moving
@@ -32,7 +32,7 @@ public class Player : MonoBehaviour
             }
 
             // Rotate die
-            switch (moving) {
+            switch (nextMoves[0]) {
                 case "right": {
                     gameObject.transform.RotateAround(moveStartPosition, Vector3.forward, -angle);
                     break;
@@ -54,8 +54,12 @@ public class Player : MonoBehaviour
             // If rotated 90 degrees, stop moving
             moveProgress += angle;
             if (moveProgress >= 90) {
-                moving = "";
+                nextMoves.RemoveAt(0);
+                moveProgress = 0;
                 value = GetValue();
+                if (nextMoves.Count > 0) {
+                    moveStartPosition = GetMoveStartPosition(nextMoves[0]);
+                }
             }
         }
     }
@@ -122,29 +126,52 @@ public class Player : MonoBehaviour
         ) * factor;
     }
 
+    Vector3 GetMoveStartPosition(string direction) {
+        switch (direction) {
+            case "right":
+                return gameObject.transform.position + new Vector3(0.5f, -0.5f, 0f);
+            case "up":
+                return  gameObject.transform.position + new Vector3(0f, -0.5f, 0.5f);
+            case "left":
+                return  gameObject.transform.position + new Vector3(-0.5f, -0.5f, 0f);
+            case "down":
+                return  gameObject.transform.position + new Vector3(0f, -0.5f, -0.5f);
+            default:
+                return gameObject.transform.position;
+        }
+    }
+
     void CheckIfPressingKey() {
         if (Input.GetKeyDown(KeyCode.RightArrow)) {
-            moving = "right";
+            for (int i=0; i<value; ++i) {
+                nextMoves.Add("right");
+            }
             moveProgress = 0;
-            moveStartPosition = gameObject.transform.position + new Vector3(0.5f, -0.5f, 0f);
+            moveStartPosition = GetMoveStartPosition("right");
         }
         
         if (Input.GetKeyDown(KeyCode.UpArrow)) {
-            moving = "up";
+            for (int i=0; i<value; ++i) {
+                nextMoves.Add("up");
+            }
             moveProgress = 0;
-            moveStartPosition = gameObject.transform.position + new Vector3(0f, -0.5f, 0.5f);
+            moveStartPosition = GetMoveStartPosition("up");
         }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow)) {
-            moving = "left";
+            for (int i=0; i<value; ++i) {
+                nextMoves.Add("left");
+            }
             moveProgress = 0;
-            moveStartPosition = gameObject.transform.position + new Vector3(-0.5f, -0.5f, 0f);
+            moveStartPosition = GetMoveStartPosition("left");
         }
 
         if (Input.GetKeyDown(KeyCode.DownArrow)) {
-            moving = "down";
+            for (int i=0; i<value; ++i) {
+                nextMoves.Add("down");
+            }
             moveProgress = 0;
-            moveStartPosition = gameObject.transform.position + new Vector3(0f, -0.5f, -0.5f);
+            moveStartPosition = GetMoveStartPosition("down");
         }
     }
 }
