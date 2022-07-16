@@ -10,10 +10,14 @@ public class Player : MonoBehaviour
     public Vector3 moveStartPosition;
     public int value = 5;
     public Vector3 rotation;
+    public int isOnGround = 0;
+    public int won = 0;
+    public GameManager manager;
 
     // Start is called before the first frame update
     void Start()
     {
+        value = GetValue();
     }
 
     // Update is called once per frame
@@ -59,12 +63,21 @@ public class Player : MonoBehaviour
                 value = GetValue();
                 if (nextMoves.Count > 0) {
                     moveStartPosition = GetMoveStartPosition(nextMoves[0]);
+                } else {
+                    if (won > 0) {
+                        manager.Victory();
+                    }
+                }
+
+                if (isOnGround <= 0) {
+                    nextMoves = new List<string>();
+                    gameObject.AddComponent<Rigidbody>();
                 }
             }
         }
     }
 
-    int GetValue() {
+    public int GetValue() {
         rotation = gameObject.transform.rotation.eulerAngles;
 
         rotation.x = RoundToNearest90((int)rotation.x);
